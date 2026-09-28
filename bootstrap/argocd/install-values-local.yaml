@@ -18,13 +18,17 @@ configs:
     server.insecure: true
 
 controller:
+  # 512Mi tambem causava OOMKill ao gerenciar apps com muitos recursos/CRDs
+  # grandes (kube-prometheus-stack, openmetadata, minio Tenant)
+  # simultaneamente no sync inicial — mesmo problema ja documentado e
+  # corrigido no EKS (install-values-eks.yaml), replicado aqui.
   resources:
     requests:
       cpu: 250m
-      memory: 256Mi
-    limits:
-      cpu: 500m
       memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1536Mi
 
 repoServer:
   # 256Mi causava OOMKill ao gerar manifests de varios charts remotos
