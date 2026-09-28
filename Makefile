@@ -20,6 +20,8 @@ bootstrap-local:
 	fi
 	@echo "==> Aplicando namespaces..."
 	kubectl apply -f bootstrap/namespaces.yaml
+	@echo "==> Criando ecr-pull-secret..."
+	bash bootstrap/ecr-auth/local-ecr-secret.sh
 	@echo "==> Adicionando repo Helm do ArgoCD..."
 	helm repo add argo https://argoproj.github.io/argo-helm 2>/dev/null || true
 	helm repo update

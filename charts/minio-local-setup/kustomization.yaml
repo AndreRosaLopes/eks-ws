@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - create-buckets-job.yaml
+
+# ConfigMap e' recurso normal (nao hook): sem ele a app so teria o hook,
+# nasceria Synced e o Job nunca rodaria. Mudar a lista de buckets aqui
+# re-dispara o Job automaticamente.
+configMapGenerator:
+  - name: minio-setup-config
+    namespace: data-platform
+    literals:
+      - buckets=bronze warehouse silver gold airbyte-storage
+
+generatorOptions:
+  disableNameSuffixHash: true

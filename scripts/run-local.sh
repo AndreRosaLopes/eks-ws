@@ -13,9 +13,10 @@
 #   1. git pull (atualiza para o que estiver em origin/main)
 #   2. cria o cluster kind se nao existir (reaproveita se ja existir)
 #   3. aplica os namespaces
-#   4. instala/atualiza o ArgoCD
-#   5. aplica o app-of-apps (aponta para apps/local/)
-#   6. espera todas as Applications ficarem Synced/Healthy
+#   4. cria o ecr-pull-secret (token do ECR, expira em 12h)
+#   5. instala/atualiza o ArgoCD
+#   6. aplica o app-of-apps (aponta para apps/local/)
+#   7. espera todas as Applications ficarem Synced/Healthy
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -25,11 +26,11 @@ cd "$ROOT_DIR"
 CLUSTER_NAME="data-platform-local"
 KIND_CONFIG="infra/clusters/local/kind-config.yaml"
 
-echo "==> [1/6] git pull..."
+echo "==> [1/7] git pull..."
 git pull --ff-only
 
-echo "==> [2/6] Verificando pre-requisitos (docker, kind, kubectl, helm)..."
-for bin in docker kind kubectl helm; do
+echo "==> [2/7] Verificando pre-requisitos (docker, kind, kubectl, helm, aws)..."
+for bin in docker kind kubectl helm aws; do
   if ! command -v "$bin" >/dev/null 2>&1; then
     echo "ERRO: '$bin' nao encontrado no PATH." >&2
     echo "Numa maquina Ubuntu nova (ex: EC2), rode antes: bash scripts/ec2-bootstrap.sh" >&2
@@ -38,7 +39,7 @@ for bin in docker kind kubectl helm; do
 done
 docker info >/dev/null 2>&1 || { echo "ERRO: docker nao esta rodando (ou seu usuario nao esta no grupo docker)." >&2; exit 1; }
 
-echo "==> [3/6] Cluster kind '${CLUSTER_NAME}'..."
+echo "==> [3/7] Cluster kind '${CLUSTER_NAME}'..."
 if kind get clusters 2>/dev/null | grep -q "^${CLUSTER_NAME}$"; then
   echo "    ja existe, reaproveitando."
 else
@@ -46,10 +47,15 @@ else
   kind create cluster --config "$KIND_CONFIG"
 fi
 
-echo "==> [4/6] Aplicando namespaces..."
+echo "==> [4/7] Aplicando namespaces..."
 kubectl apply -f bootstrap/namespaces.yaml
 
-echo "==> [5/6] Instalando/atualizando ArgoCD..."
+# Imagens customizadas vem do ECR privado; nodes do kind nao tem IAM role,
+# entao o pull precisa de imagePullSecret (usa as credenciais AWS locais).
+echo "==> [5/7] Criando ecr-pull-secret..."
+bash bootstrap/ecr-auth/local-ecr-secret.sh
+
+echo "==> [6/7] Instalando/atualizando ArgoCD..."
 helm repo add argo https://argoproj.github.io/argo-helm >/dev/null 2>&1 || true
 helm repo update >/dev/null
 if helm status argocd -n argocd >/dev/null 2>&1; then
@@ -59,10 +65,10 @@ else
 fi
 kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 
-echo "==> [6/6] Aplicando app-of-apps e aguardando ficar tudo Synced/Healthy..."
+echo "==> [7/7] Aplicando app-of-apps e aguardando ficar tudo Synced/Healthy..."
 kubectl apply -f bootstrap/argocd/app-of-apps.yaml
-# 13 = numero de Applications esperado em apps/local/ (ajuste se adicionar novas)
-bash scripts/wait-argocd-healthy.sh 1800 15 13
+# 18 = numero de Applications esperado em apps/local/ (ajuste se adicionar novas)
+bash scripts/wait-argocd-healthy.sh 1800 15 18
 
 echo ""
 echo "=========================================="
