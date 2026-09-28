@@ -24,18 +24,46 @@ Componentes de suporte: Grafana, OpenMetadata, Great Expectations
 **EKS (adicional):**
 - Terraform 1.5+
 
-Numa máquina Ubuntu nova (notebook novo ou EC2 recém-criada), instale
-tudo isso de uma vez com `bash scripts/ec2-bootstrap.sh`.
+Numa máquina Ubuntu nova (notebook, EC2 recém-criada, WSL — o script não
+tem nada específico de EC2, funciona em qualquer Ubuntu), instale tudo
+isso de uma vez com `bash scripts/ec2-bootstrap.sh`.
 
 ## Quick Start (Local)
 
 Funciona igual em qualquer máquina — notebook, EC2, qualquer lugar —
-desde que o repo esteja clonado ali:
+desde que o repo esteja clonado ali.
+
+### Máquina Ubuntu nova (sem os pré-requisitos instalados ainda)
 
 ```bash
 git clone https://github.com/cicerojmm/treinamentoDataHandsLakehouseOpenSourceAWS.git
 cd treinamentoDataHandsLakehouseOpenSourceAWS
 
+bash scripts/ec2-bootstrap.sh
+```
+Instala Docker, kubectl, kind, Helm, AWS CLI v2 e Terraform. Não é
+específico de EC2 — roda igual num notebook Ubuntu.
+
+O script te adiciona ao grupo `docker`, mas isso só vale numa sessão
+nova. Saia e volte a entrar (ou `newgrp docker`) antes de continuar:
+```bash
+exit
+# reabra o terminal, ou reconecte via SSH se for uma máquina remota
+docker ps   # confirma que funciona sem sudo
+```
+
+Configure as credenciais da AWS — necessário mesmo no ambiente local,
+já que as imagens customizadas (Airflow, Metabase, API) vêm do ECR
+privado e `make run-local` cria o `ecr-pull-secret` sozinho a partir
+delas:
+```bash
+aws configure   # ou aws sso login, dependendo de como vocês autenticam
+aws sts get-caller-identity
+```
+
+### Subir a plataforma
+
+```bash
 # git pull + sobe o cluster kind + ArgoCD + espera tudo ficar Synced/Healthy
 make run-local
 ```
@@ -58,13 +86,28 @@ make destroy-local
 
 Só `ArgoCD` (porta 8080) e `Airbyte` (porta 8001) têm porta mapeada no
 `infra/clusters/local/kind-config.yaml`. Para as outras UIs (Airflow,
-Metabase, Trino, Grafana, OpenMetadata), use `kubectl port-forward`.
+Metabase, Trino, Grafana, OpenMetadata), use `kubectl port-forward`, ex:
+```bash
+kubectl port-forward -n orchestration svc/airflow-api-server 8080:8080
+kubectl port-forward -n data-platform svc/metabase 3000:3000
+kubectl port-forward -n query-engine svc/trino 8081:8080
+kubectl port-forward -n observability svc/kube-prometheus-stack-grafana 3001:80
+kubectl port-forward -n governance svc/openmetadata 8585:8585
+```
 
 ### Rodando numa máquina remota (ex: EC2)
 
-Este projeto já teve uma instância dedicada para isso (`data-platform-os`,
-`t3a.2xlarge`, região `us-east-2`), hoje parada e sem Elastic IP — o IP
-público muda a cada `start`. Para reativar e usar:
+**EC2 nova, do zero:** conecte por SSH e siga a seção "Máquina Ubuntu
+nova" acima — `ec2-bootstrap.sh` funciona igual numa instância recém-criada.
+```bash
+ssh -i ~/caminho/para/sua-chave.pem ubuntu@<ip-da-instancia>
+```
+
+**Reaproveitando uma instância já configurada:** este projeto já teve
+uma instância dedicada para isso (`data-platform-os`, `t3a.2xlarge`,
+região `us-east-2`), hoje parada e sem Elastic IP — o IP público muda a
+cada `start`. Para reativar e usar (pré-requisitos e credenciais AWS já
+instalados/configurados de uma vez anterior):
 
 ```bash
 # 1. Iniciar a instância e pegar o IP público atual
@@ -77,9 +120,9 @@ ssh -i ~/caminho/para/sua-chave.pem ubuntu@<ip-retornado>
 cd treinamentoDataHandsLakehouseOpenSourceAWS && make run-local
 ```
 
-Por decisão do projeto, **não abrimos o Security Group** para expor as
-UIs na internet. Acesse via túnel SSH, numa outra aba (depois do
-`make run-local` terminar):
+Em qualquer um dos dois casos: por decisão do projeto, **não abrimos o
+Security Group** para expor as UIs na internet. Acesse via túnel SSH,
+numa outra aba (depois do `make run-local` terminar):
 
 ```bash
 ssh -i ~/caminho/para/sua-chave.pem \
@@ -87,7 +130,9 @@ ssh -i ~/caminho/para/sua-chave.pem \
   ubuntu@<ip-da-instancia>
 ```
 
-Para desligar a instância e economizar quando não estiver em uso:
+Para desligar a instância e economizar quando não estiver em uso
+(só se aplica à instância reaproveitável `data-platform-os`; uma EC2
+nova criada do zero você gerencia/destrói do seu jeito):
 ```bash
 aws ec2 stop-instances --region us-east-2 --instance-ids i-0de2b9ce8d797f0ac
 ```

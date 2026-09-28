@@ -76,8 +76,23 @@ spec:
         postgresql:
           enabled: false
 
+        # Com type: minio o chart sempre cria um StatefulSet airbyte-minio
+        # (hook pre-install, sem toggle — "enabled" e' ignorado). Fica em
+        # ImagePullBackOff: tanto quay.io/minio/minio quanto minio/minio no
+        # Docker Hub agora exigem autenticacao pra pull, ate' em tags
+        # antigas (confirmado em 2026-09-28, mudanca de politica da MinIO
+        # Inc — sem workaround gratuito conhecido). Nao afeta o Airbyte de
+        # verdade: o storage real usado e' o MinIO da plataforma
+        # (global.storage.minio.endpoint acima), esse StatefulSet fica
+        # ocioso e nunca e' lido por nada.
         minio:
-          enabled: false
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
   destination:
     server: https://kubernetes.default.svc
     namespace: ingestion
