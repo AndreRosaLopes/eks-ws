@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - hive-metastore-postgres.yaml
+  - airbyte-postgres.yaml
+  - airflow-postgres.yaml
+  - sample-source-postgres.yaml
+  - iceberg-catalog-init-job.yaml
+
+# Dados de exemplo carregados no primeiro start do sample source (PVC vazio)
+configMapGenerator:
+  - name: sample-source-initdb
+    namespace: ingestion
+    files:
+      - sample-data/01-ecommerce-sample.sql
+
+generatorOptions:
+  disableNameSuffixHash: true
