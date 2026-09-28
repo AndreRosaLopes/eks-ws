@@ -71,16 +71,19 @@ spec:
               cpu: 500m
               memory: 512Mi
 
+        # Memoria alinhada com o EKS (medido em carga: pico 640Mi) — 256Mi
+        # deixava o boot lento demais (Micronaut/JVM) e batia no
+        # readinessProbe/livenessProbe antes de terminar de subir.
         server:
           enabled: true
           replicaCount: 1
           resources:
             requests:
               cpu: 100m
-              memory: 256Mi
+              memory: 640Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 1000m
+              memory: 1Gi
 
         worker:
           enabled: true
