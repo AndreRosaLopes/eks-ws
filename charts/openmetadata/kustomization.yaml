@@ -4,4 +4,4 @@ kind: Kustomization
 namespace: governance
 
 resources:
-  - postgres.yaml
+  - postgres-local.yaml
