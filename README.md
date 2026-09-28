@@ -61,6 +61,15 @@ aws configure   # ou aws sso login, dependendo de como vocês autenticam
 aws sts get-caller-identity
 ```
 
+Pegue uma licença **AIStor Free** (single-node, gratuita) em
+[subnet.min.io](https://subnet.min.io) — desde 2026-09 a MinIO Inc.
+trancou pull anônimo das imagens legadas e o servidor exige licença
+pra operações S3. Crie o Secret no cluster (nunca commitado no Git):
+```bash
+kubectl create secret generic minio-local-license -n data-platform \
+  --from-literal=minio.license='<jwt-da-licenca>'
+```
+
 ### Subir a plataforma
 
 ```bash

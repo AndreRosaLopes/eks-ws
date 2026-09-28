@@ -20,6 +20,22 @@ bootstrap-local:
 	fi
 	@echo "==> Aplicando namespaces..."
 	kubectl apply -f bootstrap/namespaces.yaml
+	@echo "==> Instalando/atualizando aistor-objectstore-operator..."
+	@if ! kubectl get secret minio-local-license -n data-platform >/dev/null 2>&1; then \
+		echo "ERRO: Secret 'minio-local-license' nao existe no namespace data-platform." >&2; \
+		echo "Pegue uma licenca AIStor Free (single-node, gratuita) em https://subnet.min.io" >&2; \
+		echo "e crie o Secret com:" >&2; \
+		echo "  kubectl create secret generic minio-local-license -n data-platform \\" >&2; \
+		echo "    --from-literal=minio.license='<jwt-da-licenca>'" >&2; \
+		exit 1; \
+	fi
+	helm repo add minio-helm https://helm.min.io/ 2>/dev/null || true
+	helm repo update minio-helm
+	helm upgrade --install aistor-objectstore-operator minio-helm/aistor-objectstore-operator \
+		--namespace data-platform \
+		-f bootstrap/minio-aistor-operator/install-values.yaml \
+		--set license="$$(kubectl get secret minio-local-license -n data-platform -o jsonpath='{.data.minio\.license}' | base64 -d)" \
+		--wait
 	@echo "==> Criando ecr-pull-secret..."
 	bash bootstrap/ecr-auth/local-ecr-secret.sh
 	@echo "==> Adicionando repo Helm do ArgoCD..."

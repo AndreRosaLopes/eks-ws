@@ -1,0 +1,16 @@
+# Values do aistor-objectstore-operator SEM a licenca (a licenca e passada
+# via --set na hora do helm upgrade, nunca commitada — ver
+# scripts/run-local.sh). So precisamos do operator do Object Store;
+# aihub/prompt/warp ja vem desabilitados por default no chart.
+global:
+  operator:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+operators:
+  adminjob:
+    disabled: true
+  object-store:
+    disabled: false

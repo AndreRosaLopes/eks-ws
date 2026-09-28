@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio-objectstore
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: https://helm.min.io/
+    chart: aistor-objectstore
+    targetRevision: 1.1.0
+    helm:
+      values: |
+        secrets:
+          name: minio-local-env-configuration
+          accessKey: 6AqQif6bwByfEXP08vv2
+          secretKey: 6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX
+        objectStore:
+          name: minio-local
+          pools:
+            - servers: 1
+              name: pool-0
+              volumesPerServer: 1
+              size: 20Gi
+              storageClassName: standard
+          mountPath: /data
+          certificates:
+            disableAutoCert: true
+          prometheusOperator: false
+          env:
+            - name: MINIO_BROWSER
+              value: "on"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: data-platform
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

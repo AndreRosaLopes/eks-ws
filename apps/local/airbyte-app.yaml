@@ -30,8 +30,8 @@ spec:
               workloadOutput: airbyte-storage
           minio:
             endpoint: http://minio-local-hl.data-platform.svc.cluster.local:9000
-            accessKeyId: minio
-            secretAccessKey: minio123
+            accessKeyId: 6AqQif6bwByfEXP08vv2
+            secretAccessKey: 6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX
 
         webapp:
           enabled: true

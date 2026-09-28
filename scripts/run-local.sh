@@ -13,10 +13,13 @@
 #   1. git pull (atualiza para o que estiver em origin/main)
 #   2. cria o cluster kind se nao existir (reaproveita se ja existir)
 #   3. aplica os namespaces
-#   4. cria o ecr-pull-secret (token do ECR, expira em 12h)
-#   5. instala/atualiza o ArgoCD
-#   6. aplica o app-of-apps (aponta para apps/local/)
-#   7. espera todas as Applications ficarem Synced/Healthy
+#   4. instala/atualiza o aistor-objectstore-operator (exige o Secret
+#      minio-local-license, criado manualmente antes — ver instrucoes
+#      no proprio script se faltar)
+#   5. cria o ecr-pull-secret (token do ECR, expira em 12h)
+#   6. instala/atualiza o ArgoCD
+#   7. aplica o app-of-apps (aponta para apps/local/)
+#   8. espera todas as Applications ficarem Synced/Healthy
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -47,15 +50,37 @@ else
   kind create cluster --config "$KIND_CONFIG"
 fi
 
-echo "==> [4/7] Aplicando namespaces..."
+echo "==> [4/8] Aplicando namespaces..."
 kubectl apply -f bootstrap/namespaces.yaml
+
+# MinIO Inc. trancou pull anonimo das imagens legadas (quay.io/minio/minio,
+# Docker Hub) em 2026-09; o caminho publico atual e' quay.io/minio/aistor,
+# que exige licenca (gratuita p/ single-node, via subnet.min.io). A licenca
+# fica so' no Secret do cluster, nunca commitada — precisa existir antes
+# deste passo.
+echo "==> [5/8] Instalando/atualizando aistor-objectstore-operator..."
+if ! kubectl get secret minio-local-license -n data-platform >/dev/null 2>&1; then
+  echo "ERRO: Secret 'minio-local-license' nao existe no namespace data-platform." >&2
+  echo "Pegue uma licenca AIStor Free (single-node, gratuita) em https://subnet.min.io" >&2
+  echo "e crie o Secret com:" >&2
+  echo "  kubectl create secret generic minio-local-license -n data-platform \\" >&2
+  echo "    --from-literal=minio.license='<jwt-da-licenca>'" >&2
+  exit 1
+fi
+helm repo add minio-helm https://helm.min.io/ >/dev/null 2>&1 || true
+helm repo update minio-helm >/dev/null
+helm upgrade --install aistor-objectstore-operator minio-helm/aistor-objectstore-operator \
+  --namespace data-platform \
+  -f bootstrap/minio-aistor-operator/install-values.yaml \
+  --set license="$(kubectl get secret minio-local-license -n data-platform -o jsonpath='{.data.minio\.license}' | base64 -d)" \
+  --wait
 
 # Imagens customizadas vem do ECR privado; nodes do kind nao tem IAM role,
 # entao o pull precisa de imagePullSecret (usa as credenciais AWS locais).
-echo "==> [5/7] Criando ecr-pull-secret..."
+echo "==> [6/8] Criando ecr-pull-secret..."
 bash bootstrap/ecr-auth/local-ecr-secret.sh
 
-echo "==> [6/7] Instalando/atualizando ArgoCD..."
+echo "==> [7/8] Instalando/atualizando ArgoCD..."
 helm repo add argo https://argoproj.github.io/argo-helm >/dev/null 2>&1 || true
 helm repo update >/dev/null
 if helm status argocd -n argocd >/dev/null 2>&1; then
@@ -65,10 +90,10 @@ else
 fi
 kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 
-echo "==> [7/7] Aplicando app-of-apps e aguardando ficar tudo Synced/Healthy..."
+echo "==> [8/8] Aplicando app-of-apps e aguardando ficar tudo Synced/Healthy..."
 kubectl apply -f bootstrap/argocd/app-of-apps.yaml
-# 18 = numero de Applications esperado em apps/local/ (ajuste se adicionar novas)
-bash scripts/wait-argocd-healthy.sh 1800 15 18
+# 17 = numero de Applications esperado em apps/local/ (ajuste se adicionar novas)
+bash scripts/wait-argocd-healthy.sh 1800 15 17
 
 echo ""
 echo "=========================================="

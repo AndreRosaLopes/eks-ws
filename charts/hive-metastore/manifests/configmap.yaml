@@ -45,11 +45,11 @@ data:
       </property>
       <property>
         <name>fs.s3.access.key</name>
-        <value>minio</value>
+        <value>6AqQif6bwByfEXP08vv2</value>
       </property>
       <property>
         <name>fs.s3.secret.key</name>
-        <value>minio123</value>
+        <value>6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX</value>
       </property>
       <property>
         <name>fs.s3.path.style.access</name>
@@ -63,11 +63,11 @@ data:
       </property>
       <property>
         <name>fs.s3a.access.key</name>
-        <value>minio</value>
+        <value>6AqQif6bwByfEXP08vv2</value>
       </property>
       <property>
         <name>fs.s3a.secret.key</name>
-        <value>minio123</value>
+        <value>6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX</value>
       </property>
       <property>
         <name>fs.s3a.path.style.access</name>

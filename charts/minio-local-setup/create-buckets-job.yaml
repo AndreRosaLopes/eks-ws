@@ -34,9 +34,9 @@ spec:
           image: amazon/aws-cli:latest
           env:
             - name: AWS_ACCESS_KEY_ID
-              value: minio
+              value: 6AqQif6bwByfEXP08vv2
             - name: AWS_SECRET_ACCESS_KEY
-              value: minio123
+              value: 6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX
             - name: AWS_DEFAULT_REGION
               value: us-east-1
           command:

@@ -14,8 +14,8 @@ resources:
 secretGenerator:
   - name: lakehouse-api-secret
     literals:
-      - minio-access-key=minio
-      - minio-secret-key=minio123
+      - minio-access-key=6AqQif6bwByfEXP08vv2
+      - minio-secret-key=6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX
       - api-key=lakehouse-demo-key-2024
 
 generatorOptions:
