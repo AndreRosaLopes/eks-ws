@@ -10,9 +10,22 @@ spec:
   source:
     repoURL: https://airbytehq.github.io/helm-charts
     chart: airbyte
-    targetRevision: 1.9.3
+    targetRevision: 1.7.8
     helm:
       skipCrds: true
+      parameters:
+        - name: server.livenessProbe.initialDelaySeconds
+          value: "120"
+        - name: server.livenessProbe.periodSeconds
+          value: "15"
+        - name: server.livenessProbe.failureThreshold
+          value: "5"
+        - name: server.readinessProbe.initialDelaySeconds
+          value: "60"
+        - name: server.readinessProbe.periodSeconds
+          value: "10"
+        - name: server.readinessProbe.failureThreshold
+          value: "5"
       values: |
         global:
           database:
@@ -21,6 +34,17 @@ spec:
             database: airbyte
             user: airbyte
             password: airbyte123
+          # type: minio (mesmo motivo do EKS). NAO usar type: s3 — sem
+          # endpoint, o SDK vai pra AWS S3 publica.
+          # JOB_MAIN_CONTAINER_*_REQUEST sobrescreve os recursos do
+          # airbyte-server (sem isso, sync de source de banco pede
+          # orchestrator+source+destination = 4 CPU, nao agenda no kind).
+          jobs:
+            resources:
+              requests:
+                cpu: "0"
+                memory: "256Mi"
+
           storage:
             type: minio
             storageSecretName: airbyte-storage-secret
@@ -28,10 +52,10 @@ spec:
               log: airbyte-storage
               state: airbyte-storage
               workloadOutput: airbyte-storage
-          minio:
-            endpoint: http://minio-local-hl.data-platform.svc.cluster.local:9000
-            accessKeyId: 6AqQif6bwByfEXP08vv2
-            secretAccessKey: 6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX
+            minio:
+              endpoint: http://minio-local-hl.data-platform.svc.cluster.local:9000
+              accessKeyIdSecretKey: AWS_ACCESS_KEY_ID
+              secretAccessKeySecretKey: AWS_SECRET_ACCESS_KEY
 
         webapp:
           enabled: true
@@ -72,17 +96,56 @@ spec:
         temporal:
           enabled: true
           replicaCount: 1
+          resources:
+            requests:
+              cpu: 20m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+
+        workload-launcher:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+
+        workload-api-server:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+
+        cron:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+
+        connector-builder-server:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
 
         postgresql:
           enabled: false
 
         # Com type: minio o chart sempre cria um StatefulSet airbyte-minio
         # (hook pre-install, sem toggle — "enabled" e' ignorado), que BLOQUEIA
-        # o resto do sync ate' ficar Healthy. Default (quay.io/minio/minio)
-        # parou de aceitar pull anonimo em 2026-09-24 (MinIO Inc. trancou o
-        # namespace legado, Docker Hub tambem). Novo caminho publico oficial:
-        # quay.io/minio/aistor/minio. Nao afeta o Airbyte de verdade: o
-        # storage real usado e' o MinIO da plataforma
+        # o resto do sync ate' ficar Healthy. Default do chart
+        # (quay.io/minio/minio) parou de aceitar pull anonimo em 2026-09-24
+        # (MinIO Inc. trancou o namespace legado, Docker Hub tambem — mesmo
+        # problema no EKS, ainda nao corrigido la). Novo caminho publico
+        # oficial: quay.io/minio/aistor/minio. Nao afeta o Airbyte de
+        # verdade: o storage real usado e' o MinIO da plataforma
         # (global.storage.minio.endpoint acima), esse StatefulSet fica
         # ocioso e nunca e' lido por nada — so' precisa ficar Ready.
         minio:
@@ -96,24 +159,17 @@ spec:
             limits:
               cpu: 250m
               memory: 256Mi
+
+        airbyteBootloader:
+          enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: ingestion
-  ignoreDifferences:
-    - group: apps
-      kind: StatefulSet
-      name: airbyte-minio
-      jsonPointers:
-        - /spec
-    - group: ""
-      kind: ConfigMap
-      name: airbyte-airbyte-env
-      jsonPointers:
-        - /data/MINIO_ENDPOINT
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - RespectIgnoreDifferences=true
+      - SkipDryRunOnMissingResource=true
+      - PruneLast=true

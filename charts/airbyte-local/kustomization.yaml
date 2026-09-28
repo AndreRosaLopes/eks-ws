@@ -2,19 +2,21 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 # Secret gerado aqui: arquivos *secret*.yaml são ignorados pelo .gitignore
-# e não chegariam ao ArgoCD. Credenciais estáticas (ambiente de testes).
-#
-# Nomes de chave (MINIO_ACCESS_KEY_ID/MINIO_SECRET_ACCESS_KEY) sao os que
-# o chart local (airbyte 1.9.3) espera por default em
-# global.storage.minio quando storageSecretName aponta pra um secret
-# externo (ver templates/_storage.tpl) — DIFERENTE das chaves usadas no
-# charts/airbyte-eks (chart 1.7.8, outra convencao de nomes).
+# e não chegariam ao ArgoCD. Credenciais estáticas (ambiente de testes),
+# mesmo padrão do charts/airbyte-eks (chart 1.7.8 nos dois ambientes —
+# apps/local/airbyte-app.yaml referencia accessKeyIdSecretKey/
+# secretAccessKeySecretKey explicitamente, entao os nomes aqui precisam
+# bater com o que esta la).
 secretGenerator:
   - name: airbyte-storage-secret
     namespace: ingestion
     literals:
-      - MINIO_ACCESS_KEY_ID=6AqQif6bwByfEXP08vv2
-      - MINIO_SECRET_ACCESS_KEY=6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX
+      - s3-access-key-id=6AqQif6bwByfEXP08vv2
+      - s3-secret-access-key=6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX
+      - s3-endpoint=http://minio-local-hl.data-platform.svc.cluster.local:9000
+      - s3-path-style-access=true
+      - AWS_ACCESS_KEY_ID=6AqQif6bwByfEXP08vv2
+      - AWS_SECRET_ACCESS_KEY=6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX
 
 generatorOptions:
   disableNameSuffixHash: true
