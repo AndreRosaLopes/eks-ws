@@ -6,3 +6,17 @@ namespace: data-platform
 resources:
   - deployment.yaml
   - service.yaml
+
+# Secret gerado aqui: arquivos *secret*.yaml são ignorados pelo .gitignore
+# e não chegariam ao ArgoCD (secret.yaml deste diretório nunca foi
+# commitado). Credenciais estáticas (ambiente de testes, mesmo padrão do
+# k8s-eks).
+secretGenerator:
+  - name: lakehouse-api-secret
+    literals:
+      - minio-access-key=minio
+      - minio-secret-key=minio123
+      - api-key=lakehouse-demo-key-2024
+
+generatorOptions:
+  disableNameSuffixHash: true
