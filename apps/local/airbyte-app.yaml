@@ -77,15 +77,18 @@ spec:
           enabled: false
 
         # Com type: minio o chart sempre cria um StatefulSet airbyte-minio
-        # (hook pre-install, sem toggle — "enabled" e' ignorado). Fica em
-        # ImagePullBackOff: tanto quay.io/minio/minio quanto minio/minio no
-        # Docker Hub agora exigem autenticacao pra pull, ate' em tags
-        # antigas (confirmado em 2026-09-28, mudanca de politica da MinIO
-        # Inc — sem workaround gratuito conhecido). Nao afeta o Airbyte de
-        # verdade: o storage real usado e' o MinIO da plataforma
+        # (hook pre-install, sem toggle — "enabled" e' ignorado), que BLOQUEIA
+        # o resto do sync ate' ficar Healthy. Default (quay.io/minio/minio)
+        # parou de aceitar pull anonimo em 2026-09-24 (MinIO Inc. trancou o
+        # namespace legado, Docker Hub tambem). Novo caminho publico oficial:
+        # quay.io/minio/aistor/minio. Nao afeta o Airbyte de verdade: o
+        # storage real usado e' o MinIO da plataforma
         # (global.storage.minio.endpoint acima), esse StatefulSet fica
-        # ocioso e nunca e' lido por nada.
+        # ocioso e nunca e' lido por nada — so' precisa ficar Ready.
         minio:
+          image:
+            repository: quay.io/minio/aistor/minio
+            tag: RELEASE.2026-09-19T17-05-25Z
           resources:
             requests:
               cpu: 10m
