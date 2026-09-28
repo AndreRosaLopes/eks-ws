@@ -34,6 +34,22 @@ spec:
           env:
             - name: MINIO_BROWSER
               value: "on"
+            - name: MINIO_LICENSE
+              value: /license/minio.license
+          # Licenca AIStor Free (single-node, gratuita, obtida em
+          # subnet.min.io — sem ela o servidor sobe mas recusa operacoes
+          # S3 com "AccessDenied: No license is installed"). O Secret
+          # minio-local-license precisa ser criado manualmente no cluster
+          # (nunca commitado — mesmo motivo do ecr-pull-secret):
+          #   kubectl create secret generic minio-local-license \
+          #     -n data-platform --from-literal=minio.license='<jwt>'
+          additionalVolumes:
+            - name: minio-license
+              secret:
+                secretName: minio-local-license
+          additionalVolumeMounts:
+            - name: minio-license
+              mountPath: /license
           configSecret:
             name: minio-local-env-configuration
           configuration:
