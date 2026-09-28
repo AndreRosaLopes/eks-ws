@@ -39,6 +39,14 @@ spec:
           env:
             - name: MINIO_BROWSER
               value: "on"
+            # A licenca instalada no operator (helm --set license=...) nao
+            # e' repassada automaticamente pro binario do MinIO dentro de
+            # cada ObjectStore — precisa tambem aqui.
+            - name: MINIO_LICENSE
+              valueFrom:
+                secretKeyRef:
+                  name: minio-local-license
+                  key: minio.license
   destination:
     server: https://kubernetes.default.svc
     namespace: data-platform
