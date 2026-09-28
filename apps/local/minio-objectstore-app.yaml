@@ -19,6 +19,13 @@ spec:
           secretKey: 6vN8soeJmYJF3HW2Y93yq81wTf9OGffouG79g1vX
         objectStore:
           name: minio-local
+          # Default do chart (RELEASE.2025-08-13) e' antigo demais e nao
+          # reconhece o plano FREE da licenca AIStor ("license is not
+          # valid for [TRIAL STANDARD ENTERPRISE...]"). Tag testada e
+          # confirmada compativel com licenca FREE.
+          image:
+            repository: quay.io/minio/aistor/minio
+            tag: RELEASE.2026-09-19T17-05-25Z
           pools:
             - servers: 1
               name: pool-0
