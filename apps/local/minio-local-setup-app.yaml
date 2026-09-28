@@ -1,16 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: hive-metastore
+  name: minio-local-setup
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   project: default
   source:
     repoURL: https://github.com/cicerojmm/treinamentoDataHandsLakehouseOpenSourceAWS
     targetRevision: HEAD
-    path: charts/hive-metastore/manifests
+    path: charts/minio-local-setup
   destination:
     server: https://kubernetes.default.svc
     namespace: data-platform

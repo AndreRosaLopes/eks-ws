@@ -18,9 +18,10 @@ Componentes de suporte: Grafana, OpenMetadata, Great Expectations
 - kind 0.23.x+
 - kubectl 1.29.x+
 - Helm 3.14.x+
+- AWS CLI v2, configurado com credenciais válidas (`aws sts get-caller-identity`) —
+  as imagens customizadas vêm do ECR privado, inclusive no local
 
 **EKS (adicional):**
-- AWS CLI v2, configurado com credenciais válidas (`aws sts get-caller-identity`)
 - Terraform 1.5+
 
 Numa máquina Ubuntu nova (notebook novo ou EC2 recém-criada), instale

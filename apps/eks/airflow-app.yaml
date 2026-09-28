@@ -54,6 +54,19 @@ spec:
 
         apiServer:
           enabled: true
+          # replicas: 1  <- remove/ignora quando hpa.enabled=true (o chart não
+          # #                  seta spec.replicas no Deployment, deixa o HPA controlar)
+          # hpa:
+          #   enabled: true
+          #   minReplicaCount: 1
+          #   maxReplicaCount: 3
+          #   metrics:
+          #     - type: Resource
+          #       resource:
+          #         name: cpu
+          #         target:
+          #           type: Utilization
+          #           averageUtilization: 50
           replicas: 1
           service:
             type: LoadBalancer
