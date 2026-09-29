@@ -51,8 +51,8 @@ spec:
             s3.endpoint=http://minio-eks-hl.data-platform.svc.cluster.local:9000
             s3.path-style-access=true
             s3.region=us-east-1
-            s3.aws-access-key=minio
-            s3.aws-secret-key=minio123
+            s3.aws-access-key=WoHk3PgusweklIZv96Uy
+            s3.aws-secret-key=noNt9HRW93NyQzTqC9OUwfME5LGXPWr1lsXOb2jW
           hive_bronze: |
             connector.name=hive
             hive.metastore=file
@@ -62,8 +62,8 @@ spec:
             s3.endpoint=http://minio-eks-hl.data-platform.svc.cluster.local:9000
             s3.path-style-access=true
             s3.region=us-east-1
-            s3.aws-access-key=minio
-            s3.aws-secret-key=minio123
+            s3.aws-access-key=WoHk3PgusweklIZv96Uy
+            s3.aws-secret-key=noNt9HRW93NyQzTqC9OUwfME5LGXPWr1lsXOb2jW
           postgres_source: |
             connector.name=postgresql
             connection-url=jdbc:postgresql://sample-source-postgres.ingestion.svc.cluster.local:5432/movielens

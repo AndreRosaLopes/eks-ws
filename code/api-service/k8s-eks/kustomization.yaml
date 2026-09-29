@@ -10,8 +10,8 @@ secretGenerator:
   - name: lakehouse-api-secret
     namespace: data-platform
     literals:
-      - minio-access-key=minio
-      - minio-secret-key=minio123
+      - minio-access-key=WoHk3PgusweklIZv96Uy
+      - minio-secret-key=noNt9HRW93NyQzTqC9OUwfME5LGXPWr1lsXOb2jW
       - api-key=lakehouse-demo-key-2024
 
 generatorOptions:

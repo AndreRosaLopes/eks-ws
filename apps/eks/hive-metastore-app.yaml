@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/cicerojmm/treinamentoDataHandsLakehouseOpenSourceAWS
     targetRevision: HEAD
-    path: charts/hive-metastore/manifests
+    path: charts/hive-metastore-eks
   destination:
     server: https://kubernetes.default.svc
     namespace: data-platform

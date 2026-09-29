@@ -152,6 +152,18 @@ Cria infraestrutura real na AWS (~US\$ 490/mês: EKS + 4x t3.large + NAT
 + 6 LoadBalancers). Ver `specs/SPEC-014-terraform-eks.md` e
 `specs/SPEC-015-overlays-eks.md` para o detalhamento.
 
+Pegue uma licença **AIStor Free** (single-node, gratuita) em
+[subnet.min.io](https://subnet.min.io) — desde 2026-09 a MinIO Inc.
+trancou pull anônimo das imagens legadas e o servidor exige licença pra
+operações S3 (mesmo motivo do ambiente local). Crie o Secret no cluster
+EKS antes do bootstrap (nunca commitado no Git):
+```bash
+aws eks update-kubeconfig --name data-platform-eks --region us-east-2 --alias data-platform-eks
+kubectl --context=data-platform-eks create namespace data-platform --dry-run=client -o yaml | kubectl --context=data-platform-eks apply -f -
+kubectl --context=data-platform-eks create secret generic minio-eks-license -n data-platform \
+  --from-literal=minio.license='<jwt-da-licenca>'
+```
+
 ```bash
 # terraform apply -> garante imagens customizadas no ECR -> ArgoCD ->
 # app-of-apps -> espera tudo Synced/Healthy (~20-30 min, pede confirmação)

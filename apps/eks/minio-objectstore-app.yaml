@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio-objectstore
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: https://helm.min.io/
+    chart: aistor-objectstore
+    targetRevision: 1.1.0
+    helm:
+      values: |
+        secrets:
+          name: minio-eks-env-configuration
+          accessKey: WoHk3PgusweklIZv96Uy
+          secretKey: noNt9HRW93NyQzTqC9OUwfME5LGXPWr1lsXOb2jW
+        objectStore:
+          name: minio-eks
+          # Default do chart (RELEASE.2025-08-13) e' antigo demais e nao
+          # reconhece o plano FREE da licenca AIStor ("license is not
+          # valid for [TRIAL STANDARD ENTERPRISE...]"). Tag testada e
+          # confirmada compativel com licenca FREE (mesma do local).
+          image:
+            repository: quay.io/minio/aistor/minio
+            tag: RELEASE.2026-09-19T17-05-25Z
+          pools:
+            - servers: 1
+              name: pool-0
+              volumesPerServer: 1
+              size: 50Gi
+              storageClassName: gp3
+              # Medido em carga (2026-09-23, MinIO legado): pico 167Mi, ~11m cpu.
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 256Mi
+                limits:
+                  memory: 768Mi
+          mountPath: /data
+          certificates:
+            disableAutoCert: true
+          prometheusOperator: false
+          env:
+            - name: MINIO_BROWSER
+              value: "on"
+            # A licenca instalada no operator (helm --set license=...) nao
+            # e' repassada automaticamente pro binario minio dentro de cada
+            # ObjectStore — precisa tambem aqui. Secret minio-eks-license
+            # criado manualmente no cluster (nunca commitado).
+            - name: MINIO_LICENSE
+              valueFrom:
+                secretKeyRef:
+                  name: minio-eks-license
+                  key: minio.license
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: data-platform
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

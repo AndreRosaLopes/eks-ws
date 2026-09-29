@@ -135,10 +135,28 @@ deploy-argocd-eks: check-prereqs-eks
 	else \
 		helm install argocd argo/argo-cd -n argocd --kube-context=$(EKS_CONTEXT) --create-namespace -f bootstrap/argocd/install-values-eks.yaml --wait --timeout 5m; \
 	fi
+	@echo "==> Garantindo namespace data-platform (precisa existir antes do secret da licenca)..."
+	kubectl --context=$(EKS_CONTEXT) create namespace data-platform --dry-run=client -o yaml | kubectl --context=$(EKS_CONTEXT) apply -f -
+	@echo "==> Instalando/atualizando aistor-objectstore-operator..."
+	@if ! kubectl --context=$(EKS_CONTEXT) get secret minio-eks-license -n data-platform >/dev/null 2>&1; then \
+		echo "ERRO: Secret 'minio-eks-license' nao existe no namespace data-platform." >&2; \
+		echo "Pegue uma licenca AIStor Free (single-node, gratuita) em https://subnet.min.io" >&2; \
+		echo "e crie o Secret com:" >&2; \
+		echo "  kubectl --context=$(EKS_CONTEXT) create secret generic minio-eks-license -n data-platform \\" >&2; \
+		echo "    --from-literal=minio.license='<jwt-da-licenca>'" >&2; \
+		exit 1; \
+	fi
+	helm repo add minio-helm https://helm.min.io/ 2>/dev/null || true
+	helm repo update minio-helm
+	helm upgrade --install aistor-objectstore-operator minio-helm/aistor-objectstore-operator \
+		--namespace data-platform --kube-context=$(EKS_CONTEXT) \
+		-f bootstrap/minio-aistor-operator/install-values.yaml \
+		--set license="$$(kubectl --context=$(EKS_CONTEXT) get secret minio-eks-license -n data-platform -o jsonpath='{.data.minio\.license}' | base64 -d)" \
+		--wait
 	@echo "==> Aplicando app-of-apps (única exceção não-GitOps: bootstrap do próprio ArgoCD)..."
 	kubectl --context=$(EKS_CONTEXT) apply -n argocd -f apps/eks/app-of-apps.yaml
 	@echo "==> Aguardando todas as Applications ficarem Synced/Healthy..."
-	@KUBE_CONTEXT=$(EKS_CONTEXT) bash scripts/wait-argocd-healthy.sh 1800 15 14
+	@KUBE_CONTEXT=$(EKS_CONTEXT) bash scripts/wait-argocd-healthy.sh 1800 15 19
 	@echo "==> Verificando buckets do MinIO (Synced/Healthy nao garante que Jobs de hook rodaram)..."
 	@KUBE_CONTEXT=$(EKS_CONTEXT) bash scripts/verify-minio-buckets.sh 300
 
