@@ -21,14 +21,7 @@ bootstrap-local:
 	@echo "==> Aplicando namespaces..."
 	kubectl apply -f bootstrap/namespaces.yaml
 	@echo "==> Instalando/atualizando aistor-objectstore-operator..."
-	@if ! kubectl get secret minio-local-license -n data-platform >/dev/null 2>&1; then \
-		echo "ERRO: Secret 'minio-local-license' nao existe no namespace data-platform." >&2; \
-		echo "Pegue uma licenca AIStor Free (single-node, gratuita) em https://subnet.min.io" >&2; \
-		echo "e crie o Secret com:" >&2; \
-		echo "  kubectl create secret generic minio-local-license -n data-platform \\" >&2; \
-		echo "    --from-literal=minio.license='<jwt-da-licenca>'" >&2; \
-		exit 1; \
-	fi
+	bash bootstrap/minio-aistor-operator/ensure-license-secret.sh minio-local-license data-platform
 	helm repo add minio-helm https://helm.min.io/ 2>/dev/null || true
 	helm repo update minio-helm
 	helm upgrade --install aistor-objectstore-operator minio-helm/aistor-objectstore-operator \
@@ -138,14 +131,7 @@ deploy-argocd-eks: check-prereqs-eks
 	@echo "==> Garantindo namespace data-platform (precisa existir antes do secret da licenca)..."
 	kubectl --context=$(EKS_CONTEXT) create namespace data-platform --dry-run=client -o yaml | kubectl --context=$(EKS_CONTEXT) apply -f -
 	@echo "==> Instalando/atualizando aistor-objectstore-operator..."
-	@if ! kubectl --context=$(EKS_CONTEXT) get secret minio-eks-license -n data-platform >/dev/null 2>&1; then \
-		echo "ERRO: Secret 'minio-eks-license' nao existe no namespace data-platform." >&2; \
-		echo "Pegue uma licenca AIStor Free (single-node, gratuita) em https://subnet.min.io" >&2; \
-		echo "e crie o Secret com:" >&2; \
-		echo "  kubectl --context=$(EKS_CONTEXT) create secret generic minio-eks-license -n data-platform \\" >&2; \
-		echo "    --from-literal=minio.license='<jwt-da-licenca>'" >&2; \
-		exit 1; \
-	fi
+	KUBE_CONTEXT=$(EKS_CONTEXT) bash bootstrap/minio-aistor-operator/ensure-license-secret.sh minio-eks-license data-platform
 	helm repo add minio-helm https://helm.min.io/ 2>/dev/null || true
 	helm repo update minio-helm
 	helm upgrade --install aistor-objectstore-operator minio-helm/aistor-objectstore-operator \

@@ -64,11 +64,15 @@ aws sts get-caller-identity
 Pegue uma licença **AIStor Free** (single-node, gratuita) em
 [subnet.min.io](https://subnet.min.io) — desde 2026-09 a MinIO Inc.
 trancou pull anônimo das imagens legadas e o servidor exige licença
-pra operações S3. Crie o Secret no cluster (nunca commitado no Git):
+pra operações S3. `make run-local`/`bootstrap-local` cria o Secret
+sozinho (nunca commitado no Git) — configure uma vez e esqueça:
 ```bash
-kubectl create secret generic minio-local-license -n data-platform \
-  --from-literal=minio.license='<jwt-da-licenca>'
+# ~/.bashrc ou ~/.zshrc
+export MINIO_LICENSE='<jwt-da-licenca>'
 ```
+Sem a variável, o script cai para checar se o Secret já existe no
+cluster (útil se você preferiu criá-lo manualmente antes) e só falha
+com instruções se nenhum dos dois estiver disponível.
 
 ### Subir a plataforma
 
@@ -155,8 +159,21 @@ Cria infraestrutura real na AWS (~US\$ 490/mês: EKS + 4x t3.large + NAT
 Pegue uma licença **AIStor Free** (single-node, gratuita) em
 [subnet.min.io](https://subnet.min.io) — desde 2026-09 a MinIO Inc.
 trancou pull anônimo das imagens legadas e o servidor exige licença pra
-operações S3 (mesmo motivo do ambiente local). Crie o Secret no cluster
-EKS antes do bootstrap (nunca commitado no Git):
+operações S3 (mesmo motivo do ambiente local). `make bootstrap-eks`
+cria o Secret sozinho (nunca commitado no Git), configure uma vez:
+
+- **Rodando local** (`make bootstrap-eks` na sua máquina): exporte
+  `MINIO_LICENSE` no seu `~/.bashrc`/`~/.zshrc`, igual no ambiente local.
+- **Rodando via CI** (`infra-bootstrap.yml`, `workflow_dispatch`): adicione
+  `MINIO_LICENSE` como um *repository secret* do GitHub
+  (`Settings → Secrets and variables → Actions → New repository secret`).
+  O job `deploy` já repassa `secrets.MINIO_LICENSE` pro `make
+  deploy-argocd-eks`.
+
+Sem a variável (nem o secret do GitHub), o bootstrap cai para checar se
+o Secret já existe no cluster — útil se um cluster novo ainda tem o
+Secret de uma criação manual anterior — e só falha com instruções se
+nenhum dos dois estiver disponível. Pra criar manualmente:
 ```bash
 aws eks update-kubeconfig --name data-platform-eks --region us-east-2 --alias data-platform-eks
 kubectl --context=data-platform-eks create namespace data-platform --dry-run=client -o yaml | kubectl --context=data-platform-eks apply -f -
