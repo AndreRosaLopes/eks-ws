@@ -26,7 +26,7 @@ Arquitetura do Lakehouse:
 
 ## Decisões de arquitetura fechadas (não reabrir sem justificativa nova)
 - **Catálogo do Iceberg (Trino):** JDBC Catalog com PostgreSQL dedicado (tabelas `iceberg_tables`, `iceberg_namespace_properties`) — Hive Metastore não compatível com filesystem nativo S3 do Trino 480+
-- **Storage do lakehouse:** MinIO em todos os ambientes (local e EKS) — sem migração para S3 nativo
+- **Storage do lakehouse:** MinIO em todos os ambientes (local e EKS) — sem migração para S3 nativo. Desde 2026-09-29, via **AIStor** (sucessor comercial do MinIO Community, mesma empresa) — MinIO Inc. trancou pull anônimo das imagens legadas em 2026-09-24 e o servidor exige licença (AIStor Free, single-node, gratuita via subnet.min.io) pra operações S3. Deploy via `aistor-objectstore-operator`/`ObjectStore` (substituiu `operator.min.io`/`Tenant`). Licença nunca commitada: `MINIO_LICENSE` (env var local) ou `secrets.MINIO_LICENSE` (GitHub Actions) — ver README
 - **Autenticação da API:** API key simples via header `X-API-Key`
 - **Registry de imagens:** ECR desde o início, inclusive no cluster local (`kind`)
 - **Estrutura ECR:** um repositório por serviço (`dbt-project`, `api-service`, `spark-jobs`) — não usar repo único com tags por serviço
@@ -97,7 +97,7 @@ concluído no status abaixo.
 ## Status atual
 - [x] SPEC-001: bootstrap local + ArgoCD — Implementado (EC2)
 - [x] SPEC-002: ECR — Implementado (4 repos: dbt-project, api-service, spark-jobs, airflow-dags)
-- [x] SPEC-003: MinIO — Implementado (buckets bronze, warehouse, silver, gold, airbyte-storage)
+- [x] SPEC-003: MinIO — Implementado (buckets bronze, warehouse, silver, gold, airbyte-storage); migrado 2026-09-29 pra AIStor (`aistor-objectstore-operator`/`ObjectStore`, licença Free) em local e EKS — ver decisão fechada acima. Credenciais rotacionadas (não é mais `minio`/`minio123`). Achados/fixes no caminho: endpoint do Hive Metastore no EKS estava hardcoded pro MinIO local (bug pré-existente, corrigido — `charts/hive-metastore-eks/` separado de `charts/hive-metastore/`); conflito de `secretGenerator` duplicado travando `lakehouse-api` no EKS; `scripts/verify-minio-buckets.sh` com credencial antiga hardcoded dando falso-negativo no CI. Validado 2026-09-29 num cluster EKS recriado do zero via `infra-bootstrap.yml`: 19/19 Applications Synced/Healthy, 6 ELBs, 0 pods travados
 - [x] SPEC-004: Hive Metastore — Implementado (PostgreSQL dedicado, apenas para operações internas)
 - [x] SPEC-005: Airflow — Implementado (v3.3.0, KubernetesExecutor)
 - [x] SPEC-006: Airbyte — Implementado (com PostgreSQL dedicado e sample source)
