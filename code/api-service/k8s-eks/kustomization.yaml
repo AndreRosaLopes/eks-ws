@@ -9,6 +9,7 @@ resources:
 secretGenerator:
   - name: lakehouse-api-secret
     namespace: data-platform
+    behavior: replace
     literals:
       - minio-access-key=WoHk3PgusweklIZv96Uy
       - minio-secret-key=noNt9HRW93NyQzTqC9OUwfME5LGXPWr1lsXOb2jW
