@@ -44,7 +44,7 @@ specs/                  # specs formais (fonte da verdade do que construir)
   SPEC-XXX-nome.plan.md   # spec "Plan" — como, gerado e aprovado antes do Build
 infra/terraform/         # IaC de cloud (EKS, VPC, IAM)
 infra/clusters/          # config de cluster local (kind)
-bootstrap/argocd/         # instalação do ArgoCD + app-of-apps
+bootstrap/argocd/         # instalação do ArgoCD (values)
 charts/                  # values.yaml por componente (chart de terceiros)
 apps/local/ apps/eks/     # Applications do ArgoCD por ambiente
 code/dbt-project/         # código próprio: dbt

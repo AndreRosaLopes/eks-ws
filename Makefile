@@ -44,7 +44,7 @@ bootstrap-local:
 	@echo "==> Aguardando ArgoCD server ficar pronto..."
 	kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 	@echo "==> Aplicando app-of-apps..."
-	kubectl apply -f bootstrap/argocd/app-of-apps.yaml
+	kubectl apply -f apps/local/app-of-apps.yaml
 	@echo ""
 	@echo "=========================================="
 	@echo "Bootstrap concluído!"

@@ -84,7 +84,7 @@ fi
 kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 
 echo "==> [8/8] Aplicando app-of-apps e aguardando ficar tudo Synced/Healthy..."
-kubectl apply -f bootstrap/argocd/app-of-apps.yaml
+kubectl apply -f apps/local/app-of-apps.yaml
 # 17 = numero de Applications esperado em apps/local/ (ajuste se adicionar novas)
 bash scripts/wait-argocd-healthy.sh 1800 15 17
 
