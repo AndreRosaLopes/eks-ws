@@ -468,8 +468,8 @@
     {
       "id": 11,
       "type": "timeseries",
-      "title": "Duração das tasks (p90) por DAG",
-      "description": "",
+      "title": "Duração das tasks por DAG (média)",
+      "description": "Média desde o início do statsd-exporter. O p90 só aparece enquanto houver observações recentes (janela do exporter).",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -486,9 +486,19 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (dag_id) (airflow_task_duration{quantile=\"0.9\", dag_id!=\"\", dag_id=~\"$dag_id\"})",
-          "legendFormat": "{{dag_id}}",
+          "expr": "sum by (dag_id) (airflow_task_duration_sum{dag_id!=\"\", dag_id=~\"$dag_id\", task_id!=\"\"}) / sum by (dag_id) (airflow_task_duration_count{dag_id!=\"\", dag_id=~\"$dag_id\", task_id!=\"\"})",
+          "legendFormat": "média {{dag_id}}",
           "refId": "A",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "max by (dag_id) (airflow_task_duration{quantile=\"0.9\", dag_id!=\"\", dag_id=~\"$dag_id\"})",
+          "legendFormat": "p90 {{dag_id}}",
+          "refId": "B",
           "editorMode": "code"
         }
       ],
@@ -524,7 +534,7 @@
     {
       "id": 12,
       "type": "timeseries",
-      "title": "Duração das tasks (p90) por task",
+      "title": "Duração média por task",
       "description": "",
       "datasource": {
         "type": "prometheus",
@@ -542,7 +552,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (task_id) (airflow_task_duration{quantile=\"0.9\", dag_id=~\"$dag_id\", task_id!=\"\"})",
+          "expr": "sum by (task_id) (airflow_task_duration_sum{dag_id=~\"$dag_id\", task_id!=\"\"}) / sum by (task_id) (airflow_task_duration_count{dag_id=~\"$dag_id\", task_id!=\"\"})",
           "legendFormat": "{{task_id}}",
           "refId": "A",
           "editorMode": "code"
@@ -693,7 +703,7 @@
       "id": 15,
       "type": "timeseries",
       "title": "DAG runs: duração (sucesso)",
-      "description": "Fica vazio (NaN) até haver DAG runs concluídas.",
+      "description": "Vazio até haver DAG runs concluídas com sucesso.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -710,9 +720,19 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
+          "expr": "max(airflow_dagrun_duration_success_sum / airflow_dagrun_duration_success_count)",
+          "legendFormat": "média",
+          "refId": "A",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
           "expr": "max by (quantile) (airflow_dagrun_duration_success)",
           "legendFormat": "p{{quantile}}",
-          "refId": "A",
+          "refId": "B",
           "editorMode": "code"
         }
       ],
