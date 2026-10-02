@@ -6,13 +6,17 @@ metadata:
   labels:
     app: airflow
 spec:
+  # Métricas vêm do statsd-exporter do chart do Airflow (o Airflow emite
+  # StatsD via UDP; o exporter converte e serve em :9102/metrics). O
+  # /health do api-server devolve JSON, nao formato Prometheus.
   namespaceSelector:
     matchNames:
-      - orchestration
+      - ingestion
   selector:
     matchLabels:
-      component: webserver
+      component: statsd
+      release: airflow
   endpoints:
-    - port: airflow-ui
-      path: /health
+    - port: statsd-scrape
+      path: /metrics
       interval: 30s

@@ -5,3 +5,16 @@ resources:
   - minio-servicemonitor.yaml
   - trino-servicemonitor.yaml
   - airflow-servicemonitor.yaml
+
+# Dashboards do Grafana provisionados via ConfigMap: o sidecar do
+# kube-prometheus-stack (grafana-sc-dashboard, NAMESPACE=ALL) carrega
+# qualquer ConfigMap com o label grafana_dashboard=1.
+configMapGenerator:
+  - name: grafana-dashboard-airflow
+    namespace: observability
+    files:
+      - airflow.json=dashboards/airflow.json
+    options:
+      disableNameSuffixHash: true
+      labels:
+        grafana_dashboard: "1"
