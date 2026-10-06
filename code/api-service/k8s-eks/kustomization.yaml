@@ -28,7 +28,7 @@ patches:
         value: "minio-eks-hl.data-platform.svc.cluster.local:9000"
       - op: replace
         path: /spec/template/spec/containers/0/image
-        value: "283429977024.dkr.ecr.us-east-2.amazonaws.com/data-platform/api-service:31f5812"
+        value: "283429977024.dkr.ecr.us-east-2.amazonaws.com/data-platform/api-service:d1616c1"
       # EKS: pull do ECR via IAM role dos nodes, sem imagePullSecret
       - op: remove
         path: /spec/template/spec/imagePullSecrets
