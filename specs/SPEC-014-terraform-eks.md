@@ -105,7 +105,7 @@ infra/terraform/envs/eks/
 5. `kubectl get sc` mostra StorageClass gp3 como default
 6. Pod de teste consegue criar PVC e montar volume EBS
 7. Pods de teste conseguem fazer pull das imagens customizadas do ECR
-   (093499160510.dkr.ecr.us-east-2.amazonaws.com), com as tags exatas referenciadas
+   (283429977024.dkr.ecr.us-east-2.amazonaws.com), com as tags exatas referenciadas
    pelos manifests EKS (nunca `latest`):
    - `data-platform/airflow-dags:v20260921163358` (apps/eks/airflow-app.yaml)
    - `data-platform/api-service:v20260918204856` (code/api-service/k8s-eks/kustomization.yaml)
@@ -130,7 +130,7 @@ aws eks update-kubeconfig --name data-platform-eks --region us-east-2
 kubectl get nodes
 kubectl get sc
 # Pull das imagens customizadas (tags usadas nos manifests EKS)
-REG=093499160510.dkr.ecr.us-east-2.amazonaws.com/data-platform
+REG=283429977024.dkr.ecr.us-east-2.amazonaws.com/data-platform
 for img in airflow-dags:v20260921163358 api-service:v20260918204856 metabase:v20260919110500; do
   name=test-ecr-${img%%:*}
   kubectl run "$name" --image="$REG/$img" --restart=Never --command -- sleep 30

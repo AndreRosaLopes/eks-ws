@@ -17,7 +17,7 @@ spec:
 
         images:
           airflow:
-            repository: 093499160510.dkr.ecr.us-east-2.amazonaws.com/data-platform/airflow-dags
+            repository: 283429977024.dkr.ecr.us-east-2.amazonaws.com/data-platform/airflow-dags
             tag: 55cbaae
             pullPolicy: Always
 
@@ -216,7 +216,7 @@ spec:
             load_examples: "False"
           kubernetes:
             namespace: ingestion
-            worker_container_repository: 093499160510.dkr.ecr.us-east-2.amazonaws.com/data-platform/airflow-dags
+            worker_container_repository: 283429977024.dkr.ecr.us-east-2.amazonaws.com/data-platform/airflow-dags
             worker_container_tag: 55cbaae
             delete_worker_pods: "True"
             delete_worker_pods_on_failure: "False"

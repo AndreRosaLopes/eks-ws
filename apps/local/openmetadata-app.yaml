@@ -12,7 +12,7 @@ spec:
       helm:
         valueFiles:
           - $values/charts/openmetadata/values-local.yaml
-    - repoURL: https://github.com/cicerojmm/treinamentoDataHandsLakehouseOpenSourceAWS
+    - repoURL: https://github.com/AndreRosaLopes/eks-ws
       targetRevision: HEAD
       ref: values
   destination:

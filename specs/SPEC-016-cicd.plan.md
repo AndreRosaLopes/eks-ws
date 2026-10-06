@@ -84,7 +84,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 TAG=${1:-"latest"}
-REPO="093499160510.dkr.ecr.us-east-2.amazonaws.com/data-platform/airflow-dags"
+REPO="283429977024.dkr.ecr.us-east-2.amazonaws.com/data-platform/airflow-dags"
 docker build -f "$SCRIPT_DIR/Dockerfile" -t "$REPO:$TAG" "$PROJECT_ROOT"
 echo "Done! Image: $REPO:$TAG"
 ```

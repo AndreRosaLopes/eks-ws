@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/cicerojmm/treinamentoDataHandsLakehouseOpenSourceAWS
+    repoURL: https://github.com/AndreRosaLopes/eks-ws
     targetRevision: HEAD
     path: charts/openmetadata
   destination:

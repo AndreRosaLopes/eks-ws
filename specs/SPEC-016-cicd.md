@@ -28,7 +28,7 @@ sincroniza sozinho.
   protegido. Quando for, o bot passa a abrir PR, e isso fica fora deste spec.
 - **Acesso à AWS:** GitHub Secrets `AWS_ACCESS_KEY_ID` e
   `AWS_SECRET_ACCESS_KEY` com as credenciais já usadas localmente (conta
-  root, `093499160510`). Decisão explícita do usuário: sem usuário IAM
+  root, `283429977024`). Decisão explícita do usuário: sem usuário IAM
   dedicado neste momento. **Risco aceito:** são credenciais de root, sem
   nenhum limite de escopo — se vazarem, comprometem a conta inteira, não
   só ECR. Revisar para um usuário IAM com permissão mínima é melhoria

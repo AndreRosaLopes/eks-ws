@@ -43,7 +43,8 @@ Run all commands in **Git Bash**, from the repo root. The cluster costs **~US$ 1
    AWS_PROFILE=eks-ws
    AWS_REGION=us-east-2
    ACCOUNT_ID=<account-id>
-   STATE_BUCKET=eks-ws-tfstate-<account-id>
+   STATE_BUCKET=eks-ws-tfstate-${ACCOUNT_ID}
+   REPO_NAME=<repo-name>
    REPO_URL=https://github.com/<your-user>/<repo-name>
    ```
 3. Load it. Repeat this in every new terminal:
@@ -62,11 +63,11 @@ Run all commands in **Git Bash**, from the repo root. The cluster costs **~US$ 1
    ```
 2. Replace the original account ID:
    ```bash
-   git grep -l 093499160510 | xargs sed -i "s/093499160510/$ACCOUNT_ID/g"
+   git grep -l 283429977024 | xargs sed -i "s/283429977024/$ACCOUNT_ID/g"
    ```
 3. Replace the original repo URL:
    ```bash
-   OLD=https://github.com/cicerojmm/treinamentoDataHandsLakehouseOpenSourceAWS
+   OLD=https://github.com/AndreRosaLopes/eks-ws
    git grep -l "$OLD" | xargs sed -i "s#$OLD#$REPO_URL#g"
    ```
 4. Create the image repositories in ECR (type `yes` when asked):
@@ -81,7 +82,7 @@ Run all commands in **Git Bash**, from the repo root. The cluster costs **~US$ 1
 1. Get a free license: on <https://www.min.io/pricing>, choose **Get Started** under **AIStor Free**. Then copy the key from <https://subnet.min.io> → **Deployments** → **License Key**.
 2. Create the repo:
    ```bash
-   gh repo create <repo-name> --public --source=. --remote=origin
+   gh repo create "$REPO_NAME" --public --source=. --remote=origin
    ```
 3. Add the secrets. Each command asks for the value:
    ```bash

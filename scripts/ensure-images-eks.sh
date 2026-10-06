@@ -19,7 +19,7 @@ AWS_REGION="${AWS_REGION:-us-east-2}"
 # Mesma conta hardcoded em todo o resto do repo (charts, apps, k8s-eks).
 # code/airflow-dags/build.sh tambem usa esse valor fixo — nao deriva
 # via aws sts para nao divergir do que build.sh gera localmente.
-ECR_REGISTRY="${ECR_REGISTRY:-093499160510.dkr.ecr.${AWS_REGION}.amazonaws.com}"
+ECR_REGISTRY="${ECR_REGISTRY:-283429977024.dkr.ecr.${AWS_REGION}.amazonaws.com}"
 
 echo "==> Login no ECR (${ECR_REGISTRY})..."
 aws ecr get-login-password --region "$AWS_REGION" \

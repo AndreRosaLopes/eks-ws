@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/cicerojmm/treinamentoDataHandsLakehouseOpenSourceAWS.git
+    repoURL: https://github.com/AndreRosaLopes/eks-ws.git
     targetRevision: main
     path: apps/local
     directory:

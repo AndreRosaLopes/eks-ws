@@ -36,7 +36,7 @@ desde que o repo esteja clonado ali.
 ### Máquina Ubuntu nova (sem os pré-requisitos instalados ainda)
 
 ```bash
-git clone https://github.com/cicerojmm/treinamentoDataHandsLakehouseOpenSourceAWS.git
+git clone https://github.com/AndreRosaLopes/eks-ws.git
 cd treinamentoDataHandsLakehouseOpenSourceAWS
 
 bash scripts/ec2-bootstrap.sh

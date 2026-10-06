@@ -15,7 +15,7 @@ spec:
         valueFiles:
           - $values/charts/observability/values-local.yaml
           - $values/charts/observability/values-eks.yaml
-    - repoURL: https://github.com/cicerojmm/treinamentoDataHandsLakehouseOpenSourceAWS
+    - repoURL: https://github.com/AndreRosaLopes/eks-ws
       targetRevision: HEAD
       ref: values
   destination:

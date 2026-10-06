@@ -6,7 +6,7 @@ Refazer se o repositório for recriado.
 ## 1. Configurar os Secrets do GitHub
 
 **Decisão deste spec:** usa as credenciais já configuradas localmente
-(conta root da AWS, `093499160510`) — sem usuário IAM dedicado por
+(conta root da AWS, `283429977024`) — sem usuário IAM dedicado por
 enquanto. **Risco aceito:** essas credenciais têm acesso total à conta,
 não só ao ECR. Se um dia migrar para um usuário IAM com permissão
 mínima, essa é a única seção que muda.

@@ -20,7 +20,7 @@ spec:
       containers:
         - name: metabase
           # Imagem customizada com driver Starburst/Trino incluído
-          image: 093499160510.dkr.ecr.us-east-2.amazonaws.com/data-platform/metabase:v20260919110500
+          image: 283429977024.dkr.ecr.us-east-2.amazonaws.com/data-platform/metabase:v20260919110500
           ports:
             - containerPort: 3000
           env:

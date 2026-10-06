@@ -19,7 +19,7 @@ spec:
         - name: ecr-pull-secret
       containers:
         - name: api
-          image: 093499160510.dkr.ecr.us-east-2.amazonaws.com/data-platform/api-service:662ef0b
+          image: 283429977024.dkr.ecr.us-east-2.amazonaws.com/data-platform/api-service:662ef0b
           ports:
             - containerPort: 8000
           env:

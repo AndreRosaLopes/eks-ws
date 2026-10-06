@@ -76,7 +76,7 @@ App-of-apps pattern: `apps/{local,eks}/app-of-apps.yaml` points at its own folde
 | NFS server + provisioner (EKS only) | `data-platform` | Git + Helm | `charts/nfs-server/` |
 | metrics-server (EKS only) | `kube-system` | Helm 3.14.0 | inline |
 
-> ⚠️ Every Git-sourced Application (and `README.md`, `SPEC-015` plan) still uses `repoURL: https://github.com/cicerojmm/treinamentoDataHandsLakehouseOpenSourceAWS`. The git `origin` was removed on 2026-10-05, so these must be updated to the new repo URL before ArgoCD can sync from it. Find them with: `grep -rl cicerojmm apps README.md specs`.
+> ⚠️ Every Git-sourced Application (and `README.md`, `SPEC-015` plan) still uses `repoURL: https://github.com/AndreRosaLopes/eks-ws`. The git `origin` was removed on 2026-10-05, so these must be updated to the new repo URL before ArgoCD can sync from it. Find them with: `grep -rl cicerojmm apps README.md specs`.
 
 ---
 

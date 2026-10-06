@@ -191,7 +191,7 @@ kubectl cluster-info
 ### Tarefa 7: Validar ECR Pull (imagens customizadas)
 **Comando:**
 ```bash
-REG=093499160510.dkr.ecr.us-east-2.amazonaws.com/data-platform
+REG=283429977024.dkr.ecr.us-east-2.amazonaws.com/data-platform
 for img in airflow-dags:v20260921163358 api-service:v20260918204856 metabase:v20260919110500; do
   kubectl run "test-ecr-${img%%:*}" --image="$REG/$img" --restart=Never --command -- sleep 30
 done
